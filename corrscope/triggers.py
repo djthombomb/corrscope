@@ -453,7 +453,7 @@ class CorrelationTrigger(MainTrigger):
 
     # begin per-frame
     def get_trigger(self, pos: int, cache: "PerFrameCache") -> TriggerResult:
-        print()
+        # print()
         cfg = self.cfg
 
         stride = self._stride
@@ -497,8 +497,8 @@ class CorrelationTrigger(MainTrigger):
         # Use period to recompute slope finder (if enabled) and restrict trigger
         # diameter.
         period = get_period(period_data, self.subsmp_per_s, cfg.max_freq, self)
-        if period == 0:
-            print("Warning: period=0!")
+        # if period == 0:
+        #     print("Warning: period=0!")
         cache.period = period * stride
 
         self.custom_line(
@@ -558,45 +558,39 @@ class CorrelationTrigger(MainTrigger):
                 #     np.arange(-self.A, self.B),
                 #     False,
                 # )
-                self.custom_line(
-                    "corr_buffer",
-                    self._corr_buffer,
-                    np.arange(-self.A, self.B),
-                    False,
-                    False,
-                )
+                # self.custom_line(
+                #     "corr_buffer",
+                #     self._corr_buffer,
+                #     np.arange(-self.A, self.B),
+                #     False,
+                #     False,
+                # )
 
                 # Keep in sync with _update_buffer()!
                 windowed_slice = data_slice - mean
                 normalize_buffer(windowed_slice)
                 windowed_slice *= self._prev_window
-                self.custom_line(
-                    "windowed slice",
-                    windowed_slice,
-                    np.arange(-self.A, self.B),
-                    False,
-                )
                 self_quality = np.add.reduce(data_slice * windowed_slice)
 
                 relative_quality = peak_quality / (self_quality + 0.001)
                 should_reset = relative_quality < cfg.reset_below
-                self.custom_line(
-                    "quality",
-                    A(self_quality, 0 if should_reset else self_quality, peak_quality),
-                    A(-self.A, 0, self.B),
-                    False,
-                    False,
-                )
-                print(
-                    f"buffer range={np.ptp(self._corr_buffer):.5f}, "
-                    f"slice range={np.ptp(data_slice):.5f}"
-                )
-                print(
-                    f"relative quality = {peak_quality:.3f}/{self_quality:.3f} "
-                    f"= {relative_quality:.5f} of {cfg.reset_below:.5f}"
-                )
+                # self.custom_line(
+                #     "quality",
+                #     A(self_quality, 0 if should_reset else self_quality, peak_quality),
+                #     A(-self.A, 0, self.B),
+                #     False,
+                #     False,
+                # )
+                # print(
+                #     f"buffer range={np.ptp(self._corr_buffer):.5f}, "
+                #     f"slice range={np.ptp(data_slice):.5f}"
+                # )
+                # print(
+                #     f"relative quality = {peak_quality:.3f}/{self_quality:.3f} "
+                #     f"= {relative_quality:.5f} of {cfg.reset_below:.5f}"
+                # )
                 if should_reset:
-                    print("resetting correlation buffer")
+                    # print("resetting correlation buffer")
                     corr_quality[:] = 0
                     self._corr_buffer[:] = 0
                     corr_enabled = False
@@ -627,18 +621,18 @@ class CorrelationTrigger(MainTrigger):
             edge_score *= -cfg.edge_strength
             peaks += edge_score
 
-        # self.custom_line(
-        #     "corr_kernel",
-        #     corr_kernel,
-        #     np.arange(-self.A, self.B) * stride,
-        #     False,
-        # )
-        # self.custom_line(
-        #     "peak_kernel",
-        #     self._corr_buffer,
-        #     np.arange(-self.A, self.B) * stride,
-        #     False,
-        # )
+        self.custom_line(
+            "corr_kernel",
+            corr_kernel,
+            np.arange(-self.A, self.B) * stride,
+            False,
+        )
+        self.custom_line(
+            "peak_kernel",
+            self._corr_buffer,
+            np.arange(-self.A, self.B) * stride,
+            False,
+        )
 
         # Don't pick peaks more than `period * trigger_radius_periods` away from the
         # center.
@@ -657,20 +651,20 @@ class CorrelationTrigger(MainTrigger):
             # returns double, not single/f32
             begin_offset = 0
 
-            # self.custom_line(
-            #     "corr",
-            #     corr,
-            #     np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
-            #     True,
-            #     False,
-            # )
-            # self.custom_line(
-            #     "peaks",
-            #     peaks,
-            #     np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
-            #     True,
-            #     False,
-            # )
+            self.custom_line(
+                "corr",
+                corr,
+                np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
+                True,
+                False,
+            )
+            self.custom_line(
+                "peaks",
+                peaks,
+                np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
+                True,
+                False,
+            )
 
             if radius is not None:
                 Ncorr = len(corr)
@@ -692,17 +686,17 @@ class CorrelationTrigger(MainTrigger):
             corr[1:][peaks[1:] < peaks[:-1]] = min_corr
             corr[0] = corr[-1] = min_corr
 
-            # self.custom_line(
-            #     "corr_peaks",
-            #     corr,
-            #     np.arange(
-            #         trigger_begin + stride * (begin_offset),
-            #         trigger_begin + stride * (begin_offset + len(corr)),
-            #         stride,
-            #     ),
-            #     True,
-            #     False,
-            # )
+            self.custom_line(
+                "corr_peaks",
+                corr,
+                np.arange(
+                    trigger_begin + stride * (begin_offset),
+                    trigger_begin + stride * (begin_offset + len(corr)),
+                    stride,
+                ),
+                True,
+                False,
+            )
 
             # Find optimal offset
             peak_offset = np.argmax(corr) + begin_offset  # type: int
@@ -772,7 +766,7 @@ class CorrelationTrigger(MainTrigger):
             new_len = iround(Ntrigger / 2 ** (resample_notes / scfg.notes_per_octave))
 
             def rescale_mut(corr_kernel_mut):
-                print(f"rescale_mut by {resample_notes} notes")
+                # print(f"rescale_mut by {resample_notes} notes")
                 buf = np.interp(
                     np.linspace(0, 1, new_len),
                     np.linspace(0, 1, Ntrigger),
@@ -838,7 +832,7 @@ class CorrelationTrigger(MainTrigger):
             # New waveform
             data -= cache.mean
             normalize_buffer(data)
-            print(f"updating buffer with period {cache.period}")
+            # print(f"updating buffer with period {cache.period}")
             self._prev_buffer_std = self.calc_buffer_std(cache.period / self._stride)
             window = gaussian_or_zero(N, std=self._prev_buffer_std)
             data *= window
