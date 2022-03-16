@@ -621,18 +621,18 @@ class CorrelationTrigger(MainTrigger):
             edge_score *= -cfg.edge_strength
             peaks += edge_score
 
-        self.custom_line(
-            "corr_kernel",
-            corr_kernel,
-            np.arange(-self.A, self.B) * stride,
-            False,
-        )
-        self.custom_line(
-            "peak_kernel",
-            self._corr_buffer,
-            np.arange(-self.A, self.B) * stride,
-            False,
-        )
+        # self.custom_line(
+        #     "corr_kernel",
+        #     corr_kernel,
+        #     np.arange(-self.A, self.B) * stride,
+        #     False,
+        # )
+        # self.custom_line(
+        #     "peak_kernel",
+        #     self._corr_buffer,
+        #     np.arange(-self.A, self.B) * stride,
+        #     False,
+        # )
 
         # Don't pick peaks more than `period * trigger_radius_periods` away from the
         # center.
@@ -651,20 +651,20 @@ class CorrelationTrigger(MainTrigger):
             # returns double, not single/f32
             begin_offset = 0
 
-            self.custom_line(
-                "corr",
-                corr,
-                np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
-                True,
-                False,
-            )
-            self.custom_line(
-                "peaks",
-                peaks,
-                np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
-                True,
-                False,
-            )
+            # self.custom_line(
+            #     "corr",
+            #     corr,
+            #     np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
+            #     True,
+            #     False,
+            # )
+            # self.custom_line(
+            #     "peaks",
+            #     peaks,
+            #     np.arange(trigger_begin, trigger_begin + stride * len(corr), stride),
+            #     True,
+            #     False,
+            # )
 
             if radius is not None:
                 Ncorr = len(corr)
@@ -686,17 +686,17 @@ class CorrelationTrigger(MainTrigger):
             corr[1:][peaks[1:] < peaks[:-1]] = min_corr
             corr[0] = corr[-1] = min_corr
 
-            self.custom_line(
-                "corr_peaks",
-                corr,
-                np.arange(
-                    trigger_begin + stride * (begin_offset),
-                    trigger_begin + stride * (begin_offset + len(corr)),
-                    stride,
-                ),
-                True,
-                False,
-            )
+            # self.custom_line(
+            #     "corr_peaks",
+            #     corr,
+            #     np.arange(
+            #         trigger_begin + stride * (begin_offset),
+            #         trigger_begin + stride * (begin_offset + len(corr)),
+            #         stride,
+            #     ),
+            #     True,
+            #     False,
+            # )
 
             # Find optimal offset
             peak_offset = np.argmax(corr) + begin_offset  # type: int
